@@ -1,1 +1,4 @@
 build/*
+rapport/*
+!rapport/rapport.tex
+!rapport/rapport.pdf

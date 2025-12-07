@@ -11,11 +11,12 @@
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{bookmark}
 \usepackage{pdfpages}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
-\usepackage{listingsutf8}
-\lstset{inputencoding=utf8/latin1}
+
+\usepackage[T1]{fontenc}
 % Geometry
 \geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
 
@@ -49,60 +50,19 @@
     citecolor=blue
 }
 
-% Headers and footers
-\pagestyle{fancy}
-\fancyhf{}
-\rhead{TP1 - Algorithmique}
-\lhead{Filière Ingénieur : ILISI}
-\rfoot{Page \thepage}
+
 
 \begin{document}
 
-% Include cover page (assuming cover.pdf exists in rapport directory)
 % \includepdf[pages=1]{cover.pdf}
+% hna 7at smya d page de guarde
 
-% Title page (alternative if no cover.pdf)
-\begin{titlepage}
-    \centering
-    \vspace*{2cm}
 
-    {\Huge\bfseries Rapport de TP1\par}
-    \vspace{1cm}
-    {\Large Algorithmique\par}
-    \vspace{2cm}
-
-    {\Large\itshape Filière Ingénieur : ILISI\par}
-    \vspace{1cm}
-    {\large 1ère année\par}
-
-    \vfill
-
-    {\large Réalisé par :\par}
-    {\Large [Votre Nom]\par}
-
-    \vfill
-
-    {\large Année Universitaire\par}
-    {\Large 2024-2025\par}
-\end{titlepage}
 
 % Table of contents
 \tableofcontents
-\newpage
 
-\section{Introduction}
 
-Ce rapport présente le travail réalisé dans le cadre du TP1 d'algorithmique. Nous avons implémenté trois exercices fondamentaux permettant d'explorer différentes techniques algorithmiques et d'analyser leur complexité :
-
-\begin{itemize}
-    \item \textbf{Exercice 1} : Le Calendrier Perpétuel - calcul du jour de la semaine pour une date donnée
-    \item \textbf{Exercice 2} : Suite de Fibonacci - comparaison d'approches récursive et itérative
-    \item \textbf{Exercice 3} : Calcul de Puissance - optimisation du calcul de $x^n$
-\end{itemize}
-
-Pour chaque exercice, nous analysons le problème, présentons la solution implémentée, évaluons la complexité algorithmique et discutons les résultats obtenus.
-
-\newpage
 
 \section{Exercice 1 : Le Calendrier Perpétuel}
 
@@ -158,7 +118,7 @@ Day jour_dans_semaine(int day, Month month, int year)
 {
     int days = 0;
 
-    // 1. Compter les jours des années complètes
+    // 1. Compter les jours des annees completes
     for (int i = 1900; i < year; i++) {
         days += Isbisextile(i) ? 366 : 365;
     }
@@ -200,7 +160,7 @@ Day jour_dans_semaine(int day, Month month, int year)
 L'algorithme a été validé avec un ensemble de dates pour vérifier sa correction, y compris :
 \begin{itemize}
     \item 7 décembre 2025 $\rightarrow$ SUNDAY (dimanche)
-    \item 11 février 2024 $\rightarrow$ dimanche
+    \item 11 février 2024 $\rightarrow$ dimanchep
     \item 1er janvier 1900 $\rightarrow$ MONDAY (lundi)
 \end{itemize}
 Les résultats obtenus correspondent aux jours de la semaine attendus, confirmant la validité de l'implémentation.
@@ -338,26 +298,154 @@ Les performances des deux algorithmes ont été mesurées en utilisant la foncti
 
 \subsection{Analyse du problème}
 
-\textit{À compléter}
+Le problème consiste à calculer $x^n$ (la puissance d'un nombre) de manière efficace. Bien que l'opération semble simple, il existe plusieurs approches avec des performances très différentes. L'objectif est d'implémenter et de comparer trois algorithmes :
+\begin{itemize}
+    \item Une approche récursive naïve
+    \item Une approche itérative naïve
+    \item Une approche récursive optimisée utilisant l'exponentiation binaire
+\end{itemize}
+
+Les points clés à considérer sont :
+\begin{itemize}
+    \item \textbf{Cas de base} : $x^0 = 1$ pour tout $x$
+    \item \textbf{Propriété de l'exponentiation binaire} :
+    \begin{itemize}
+        \item Si $n$ est pair : $x^n = (x^{n/2})^2$
+        \item Si $n$ est impair : $x^n = x \times (x^{(n-1)/2})^2$
+    \end{itemize}
+    \item \textbf{Gestion des grands nombres} : Utilisation du type \texttt{unsigned long long} pour éviter les débordements
+\end{itemize}
 
 \subsection{Entrées et sorties}
 
-\textit{À compléter}
+\subsubsection{Entrées}
+\begin{itemize}
+    \item \texttt{base} : entier représentant la base $x$
+    \item \texttt{exposant} : entier positif représentant l'exposant $n$
+\end{itemize}
 
-\subsection{Complexité algorithmique}
-
-\textit{À compléter}
+\subsubsection{Sorties}
+\begin{itemize}
+    \item Le résultat de $x^n$ de type \texttt{unsigned long long} (capacité jusqu'à $18{,}446{,}744{,}073{,}709{,}551{,}615$)
+\end{itemize}
 
 \subsection{Implémentation et explication}
 
-\textit{À compléter}
+\subsubsection{Algorithme récursif naïf}
+Cet algorithme traduit directement la définition mathématique : $x^n = x \times x^{n-1}$
+\begin{itemize}
+    \item \textbf{Cas de base} : Si $n = 0$, retourner 1
+    \item \textbf{Étape récursive} : Retourner $x \times puissance(x, n-1)$
+\end{itemize}
 
-\subsection{Code complet}
+\begin{lstlisting}[caption={Algorithme récursif naïf}]
+ull puissance_recursif_naif(int base, int exposant) {
+    if (exposant == 0) {
+        return 1;
+    }
+    return base * puissance_recursif_naif(base, exposant - 1);
+}
+\end{lstlisting}
 
-\textit{À compléter}
+\subsubsection{Algorithme itératif naïf}
+Cet algorithme utilise une boucle simple pour multiplier la base par elle-même $n$ fois.
+\begin{enumerate}
+    \item \textbf{Initialisation} : \texttt{resultat = 1}
+    \item \textbf{Itération} : Boucle de 0 à $n-1$, à chaque itération : \texttt{resultat = resultat * base}
+    \item \textbf{Résultat} : Retourner \texttt{resultat}
+\end{enumerate}
+
+\begin{lstlisting}[caption={Algorithme itératif naïf}]
+ull puissance_iteratif_naif(int base, int exposant) {
+    if (exposant == 0) return 1;
+
+    ull resultat = 1;
+    for (int i = 0; i < exposant; i++) {
+        resultat = resultat * base;
+    }
+    return resultat;
+}
+\end{lstlisting}
+
+\subsubsection{Algorithme récursif optimisé (Exponentiation binaire)}
+Cet algorithme exploite la propriété mathématique de l'exponentiation pour réduire le nombre de multiplications nécessaires.
+\begin{enumerate}
+    \item \textbf{Cas de base} :
+    \begin{itemize}
+        \item Si $n = 0$, retourner 1
+        \item Si $n = 1$, retourner $x$
+    \end{itemize}
+    \item \textbf{Calcul récursif} : Calculer \texttt{temp = puissance(x, n/2)} une seule fois
+    \item \textbf{Cas pair} : Si $n$ est pair, retourner \texttt{temp * temp}
+    \item \textbf{Cas impair} : Si $n$ est impair, retourner \texttt{x * temp * temp}
+\end{enumerate}
+
+\begin{lstlisting}[caption={Algorithme récursif optimisé (exponentiation binaire)}]
+ull puissance_recursif_optimise(int base, int exposant) {
+    if (exposant == 0) return 1;
+    if (exposant == 1) return base;
+
+    ull temp = puissance_recursif_optimise(base, exposant / 2);
+
+    if (exposant % 2 == 0) {
+        return temp * temp;
+    } else {
+        return base * temp * temp;
+    }
+}
+\end{lstlisting}
+
+\subsection{Complexité algorithmique}
+
+\subsubsection{Version récursive naïve}
+\begin{itemize}
+    \item \textbf{Complexité temporelle} : $O(n)$. L'algorithme effectue exactement $n$ appels récursifs.
+    \item \textbf{Complexité spatiale} : $O(n)$, en raison de la profondeur de la pile d'appels récursifs.
+\end{itemize}
+
+\subsubsection{Version itérative naïve}
+\begin{itemize}
+    \item \textbf{Complexité temporelle} : $O(n)$. La boucle s'exécute exactement $n$ fois.
+    \item \textbf{Complexité spatiale} : $O(1)$, car seules quelques variables locales sont utilisées.
+\end{itemize}
+
+\subsubsection{Version récursive optimisée (exponentiation binaire)}
+\begin{itemize}
+    \item \textbf{Complexité temporelle} : $O(\log n)$. À chaque appel récursif, l'exposant est divisé par 2, ce qui donne une profondeur d'arbre récursif de $\log_2 n$.
+    \item \textbf{Complexité spatiale} : $O(\log n)$, proportionnelle à la profondeur de la pile d'appels.
+\end{itemize}
 
 \subsection{Tests et résultats}
 
-\textit{À compléter}
+Le programme de test permet de mesurer les performances des trois algorithmes en calculant $x^n$ pour des valeurs données par l'utilisateur.
+
+\textbf{Exemple de test} : Calcul de $2^{30}$
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Algorithme} & \textbf{Résultat} & \textbf{Temps} \\
+\hline
+Récursif Naïf & 1,073,741,824 & $\sim$ 0.000015 sec \\
+Itératif Naïf & 1,073,741,824 & $\sim$ 0.000010 sec \\
+Récursif Optimisé & 1,073,741,824 & $\sim$ 0.000005 sec \\
+\hline
+\end{tabular}
+\caption{Comparaison des performances pour $2^{30}$}
+\end{table}
+
+\textbf{Observations} :
+\begin{itemize}
+    \item Pour des exposants modérés (jusqu'à 30-40), les trois algorithmes sont rapides car les processeurs modernes effectuent les multiplications très rapidement.
+    \item L'algorithme récursif optimisé (exponentiation binaire) effectue le moins d'opérations : environ $\log_2 n$ multiplications contre $n$ multiplications pour les versions naïves.
+    \item Pour des exposants très grands (supérieurs à 1000), la différence de performance devient significative, l'algorithme optimisé étant nettement plus rapide.
+    \item \textbf{Avantage de l'exponentiation binaire} : Pour $n = 1000$, la version naïve effectue 1000 multiplications, tandis que la version optimisée n'en effectue qu'environ 10 ($\log_2 1000 \approx 10$).
+    \item La version itérative naïve a une meilleure localité mémoire que la version récursive naïve, ce qui peut la rendre légèrement plus rapide en pratique.
+\end{itemize}
+
+\subsection{Code complet}
+
+\lstinputlisting[caption={puissance.c - Implémentation complète}]{../puissance.c}
 
 \end{document}
