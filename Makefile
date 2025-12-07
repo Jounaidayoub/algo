@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -O2
-SRC=main.c
+SRC=main.c calendar.c
 TARGET=build/main
 
 
